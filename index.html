@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Management System</title>
+    <style>
+        /* Add basic styling here to make the site more user-friendly */
+        body {
+            font-family: Cabri, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Menu -->
+    <div id="mainMenu">
+        <h1>Welcome to Intercontinental Hotels</h1>
+        <p>The leading hotel chain around the globe</p>
+
+<br>
+
+
+
+        <button onclick="showGuestForm()">Proceed as Guest</button>
+        <button onclick="showStaffForm()">Proceed as Staff</button>
+    </div>
+
+    <!-- Guest Form -->
+    <div id="guestForm" style="display: none;">
+        <h2>Guest Reservation</h2>
+        <label for="guestName">Guest Name:</label>
+        <input type="text" id="guestName"><br><br>
+
+        <label for="roomNumber">Room Number (1-20):</label>
+        <input type="text" id="roomNumber"><br><br>
+
+        <button onclick="reserveRoom()">Reserve Room</button>
+        <button onclick="exitGuest()">Exit</button>
+
+        <div id="guestConfirmation"></div>
+    </div>
+
+    <!-- Staff Form -->
+    <div id="staffForm" style="display: none;">
+        <h2>Staff Login</h2>
+        <label for="staffName">Staff Name:</label>
+        <input type="text" id="staffName"><br><br>
+
+        <label for="securityCode">Security Code:</label>
+        <input type="password" id="securityCode"><br><br>
+
+        <button onclick="staffLogin()">Login</button>
+        <button onclick="exitStaff()">Exit</button>
+    </div>
+
+    <!-- Staff Dashboard (only shown after login) -->
+    <div id="staffDashboard" style="display: none;">
+        <h2>Staff Dashboard</h2>
+        <button onclick="showRegisterGuestForm()">Register New Guest</button>
+        <button onclick="viewGuests()">View All Guests</button>
+        <button onclick="checkoutGuest()">Checkout Guest</button>
+        <button onclick="exitStaff()">Exit</button>
+
+        <div id="guestList"></div>
+    </div>
+
+    <script>
+        // JavaScript functions
+
+        let guestDetails = [];  // Stores guest details for demonstration
+
+        // Show Guest Form
+        function showGuestForm() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('guestForm').style.display = 'block';
+        }
+
+        // Show Staff Form
+        function showStaffForm() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('staffForm').style.display = 'block';
+        }
+
+        // Staff Login Logic
+        function staffLogin() {
+            const staffName = document.getElementById('staffName').value;
+            const securityCode = document.getElementById('securityCode').value;
+            if (securityCode === "2805") {
+                alert("Welcome back, " + staffName + "!");
+                document.getElementById('staffForm').style.display = 'none';
+                document.getElementById('staffDashboard').style.display = 'block';
+            } else {
+                alert("Incorrect security code!");
+            }
+        }
+
+        // Exit Staff Login
+        function exitStaff() {
+            document.getElementById('staffForm').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+        }
+
+        // Register Guest Logic
+        function reserveRoom() {
+            const guestName = document.getElementById('guestName').value;
+            const roomNumber = parseInt(document.getElementById('roomNumber').value); // Convert to number
+            if (!guestName || !roomNumber) {
+                alert("Please fill in all the details.");
+                return;
+            }
+
+            // Check if room number is between 1 and 20
+            if (roomNumber < 1 || roomNumber > 20) {
+                alert("Room number must be between 1 and 20.");
+                return;
+            }
+
+            // Check if room is already reserved
+            const roomReserved = guestDetails.some(guest => guest.room === roomNumber);
+            if (roomReserved) {
+                alert("Sorry, this room is already reserved.");
+                return;
+            }
+
+            // Reserve the room
+            guestDetails.push({ name: guestName, room: roomNumber });
+            document.getElementById('guestConfirmation').innerHTML = `${guestName}'s reservation for Room ${roomNumber} has been successfully made!`;
+            document.getElementById('guestName').value = '';
+            document.getElementById('roomNumber').value = '';
+        }
+
+        // Exit Guest Form
+        function exitGuest() {
+            document.getElementById('guestForm').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+        }
+
+        // Staff Dashboard - Register New Guest
+        function showRegisterGuestForm() {
+            let guestName = prompt("Enter the guest's name:");
+            let roomNumber = prompt("Enter the guest's room number (1-20):");
+
+            roomNumber = parseInt(roomNumber); // Convert to number
+
+            if (guestName && roomNumber >= 1 && roomNumber <= 20) {
+                // Check if room is already reserved
+                const roomReserved = guestDetails.some(guest => guest.room === roomNumber);
+                if (roomReserved) {
+                    alert("This room is already reserved.");
+                } else {
+                    guestDetails.push({ name: guestName, room: roomNumber });
+                    alert(`${guestName} has been successfully registered in Room ${roomNumber}.`);
+                }
+            } else {
+                alert("Invalid guest details or room number not between 1-20.");
+            }
+        }
+
+        // Staff Dashboard - View Guests
+        function viewGuests() {
+            let guestListHtml = '<h3>Existing Guests</h3><ul>';
+            guestDetails.forEach(guest => {
+                guestListHtml += `<li>Name: ${guest.name}, Room: ${guest.room}</li>`;
+            });
+            guestListHtml += '</ul>';
+            document.getElementById('guestList').innerHTML = guestListHtml;
+        }
+
+        // Staff Dashboard - Checkout Guest
+        function checkoutGuest() {
+            let roomNumber = prompt("Enter the room number to checkout:");
+            roomNumber = parseInt(roomNumber); // Convert to number
+
+            let guestIndex = guestDetails.findIndex(guest => guest.room === roomNumber);
+            if (guestIndex !== -1) {
+                guestDetails.splice(guestIndex, 1);
+                alert(`Room ${roomNumber} has been successfully checked out.`);
+            } else {
+                alert("Invalid room number.");
+            }
+        }
+
+        // Exit Staff Dashboard
+        function exitStaff() {
+            document.getElementById('staffDashboard').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
